@@ -1,0 +1,47 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model BoardNode {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  flowNodes FlowNode[]
+}
+
+model FlowNode {
+  id        Int      @id @default(autoincrement())
+  title     String
+  description String
+  createdAt DateTime @default(now())
+  boardNodeId Int
+  boardNode BoardNode @relation(fields: [boardNodeId], references: [id], onDelete: Cascade)
+  taskNodes TaskNode[]
+}
+
+model TaskNode {
+  id        Int      @id @default(autoincrement())
+  title     String
+  description String
+  createdAt DateTime @default(now())
+  flowNodeId Int
+  flowNode FlowNode @relation(fields: [flowNodeId], references: [id], onDelete: Cascade)
+  subtaskNodes SubtaskNode[]
+  progress   Int @default(0)
+}
+
+model SubtaskNode {
+  id        Int      @id @default(autoincrement())
+  title     String
+  completed Boolean @default(false)
+  createdAt DateTime @default(now())
+  taskNodeId Int
+  taskNode  TaskNode @relation(fields: [taskNodeId], references: [id], onDelete: Cascade)
+}

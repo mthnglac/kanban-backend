@@ -1,0 +1,36 @@
+-- CreateTable
+CREATE TABLE "BoardNode" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- CreateTable
+CREATE TABLE "FlowNode" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "title" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "boardNodeId" INTEGER NOT NULL,
+    CONSTRAINT "FlowNode_boardNodeId_fkey" FOREIGN KEY ("boardNodeId") REFERENCES "BoardNode" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "TaskNode" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "title" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "flowNodeId" INTEGER NOT NULL,
+    "progress" INTEGER NOT NULL DEFAULT 0,
+    CONSTRAINT "TaskNode_flowNodeId_fkey" FOREIGN KEY ("flowNodeId") REFERENCES "FlowNode" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "SubtaskNode" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "title" TEXT NOT NULL,
+    "completed" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "taskNodeId" INTEGER NOT NULL,
+    CONSTRAINT "SubtaskNode_taskNodeId_fkey" FOREIGN KEY ("taskNodeId") REFERENCES "TaskNode" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
