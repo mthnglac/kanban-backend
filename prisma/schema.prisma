@@ -24,6 +24,7 @@ model FlowNode {
   boardNodeId Int
   boardNode BoardNode @relation(fields: [boardNodeId], references: [id], onDelete: Cascade)
   taskNodes TaskNode[]
+  order Int @default(0)
 }
 
 model TaskNode {
@@ -35,6 +36,7 @@ model TaskNode {
   flowNode FlowNode @relation(fields: [flowNodeId], references: [id], onDelete: Cascade)
   subtaskNodes SubtaskNode[]
   progress   Int @default(0)
+  order Int @default(0)
 }
 
 model SubtaskNode {

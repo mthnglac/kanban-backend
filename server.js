@@ -1,9 +1,13 @@
 import express from "express";
 import * as db from "./dbHelper.js";
+import cors from 'cors';
 
 const app = express();
-const port = 3000;
+const port = 8000;
 
+app.use(cors({
+  origin: 'http://localhost:3000'
+}));
 app.use(express.json());
 
 app.get("/", (req, res) => {
@@ -13,8 +17,7 @@ app.get("/", (req, res) => {
 // Board
 app.get("/boards", async (req, res) => {
   try {
-    const boardId = Number(req.params.id);
-    const boards = await db.getAllBoards(boardId);
+    const boards = await db.getAllBoards();
 
     res.status(200).json(boards);
   } catch (error) {
@@ -47,8 +50,8 @@ app.post("/board", async (req, res) => {
 // Flow
 app.get("/flows", async (req, res) => {
   try {
-    const boardId = Number(req.query.boardId);
-    const flows = await db.getAllFlows(boardId);
+    const boardNodeId = Number(req.query.boardNodeId);
+    const flows = await db.getAllFlows(boardNodeId);
 
     res.status(200).json(flows);
   } catch (error) {
@@ -106,10 +109,11 @@ app.delete("/flow/:id", async (req, res) => {
 app.patch("/flow/:id", async (req, res) => {
   try {
     const flowNodeId = Number(req.params.id);
-    const { title, description } = req.body;
+    const { title, description, order } = req.body;
     const flowNode = await db.updateFlowNode(flowNodeId, {
-      title: title ?? "",
-      description: description ?? "",
+      title,
+      description,
+      order,
     });
 
     if (!flowNode) {
@@ -125,8 +129,8 @@ app.patch("/flow/:id", async (req, res) => {
 // Task
 app.get("/tasks", async (req, res) => {
   try {
-    const flowId = Number(req.query.id);
-    const tasks = await db.getAllTasks(flowId);
+    const flowNodeId = Number(req.query.flowNodeId);
+    const tasks = await db.getAllTasks(flowNodeId);
 
     res.status(200).json(tasks);
   } catch (error) {
@@ -184,10 +188,12 @@ app.delete("/task/:id", async (req, res) => {
 app.patch("/task/:id", async (req, res) => {
   try {
     const taskNodeId = Number(req.params.id);
-    const { title, description } = req.body;
+    const { title, description, order, flowNodeId } = req.body;
     const taskNode = await db.updateTaskNode(taskNodeId, {
-      title: title ?? "",
-      description: description ?? "",
+      title,
+      description,
+      order,
+      flowNodeId
     });
 
     if (!taskNode) {
@@ -203,8 +209,8 @@ app.patch("/task/:id", async (req, res) => {
 //Subtask
 app.get("/subtasks", async (req, res) => {
   try {
-    const taskId = Number(req.query.id);
-    const subtasks = await db.getAllSubtasks(taskId);
+    const taskNodeId = Number(req.query.taskNodeId);
+    const subtasks = await db.getAllSubtasks(taskNodeId);
 
     res.status(200).json(subtasks);
   } catch (error) {

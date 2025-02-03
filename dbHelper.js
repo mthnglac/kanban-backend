@@ -18,7 +18,7 @@ prisma.$use(async (params, next) => {
       subtaskId = result.id;
     } else {
       subtaskId = params.args.where.id;
-    } 
+    }
 
     const subtask = await prisma.subtaskNode.findUnique({
       where: {
@@ -64,7 +64,7 @@ async function getBoardNodeById(id) {
   return prisma.boardNode.findUnique({ where: { id } });
 }
 
-async function getAllBoards(id) {
+async function getAllBoards() {
   return prisma.boardNode.findMany();
 }
 
@@ -80,8 +80,14 @@ async function getFlowNodeById(id) {
 }
 
 async function createFlowNode(title, description, boardNodeId) {
+  const lastFlow = await prisma.flowNode.findFirst({
+    where: { boardNodeId },
+    orderBy: { order: "desc" },
+  });
+  const nextOrder = lastFlow ? lastFlow.order + 1 : 0;
+
   return prisma.flowNode.create({
-    data: { title, description, boardNodeId },
+    data: { title, description, boardNodeId, order: nextOrder },
   });
 }
 
@@ -94,13 +100,15 @@ async function updateFlowNode(id, partialData) {
 
 async function deleteFlowNode(id) {
   return prisma.flowNode.delete({
-    data: { id },
+    where: { id },
   });
 }
 
 // Task Node Functions
-async function getAllTasks(flowId) {
-  return prisma.taskNode.findMany({ where: { ...(flowId && { flowId }) } });
+async function getAllTasks(flowNodeId) {
+  return prisma.taskNode.findMany({
+    where: { ...(flowNodeId && { flowNodeId }) },
+  });
 }
 
 async function getTaskNodeById(id) {
@@ -108,8 +116,14 @@ async function getTaskNodeById(id) {
 }
 
 async function createTaskNode(title, description, flowNodeId) {
+  const lastTask = await prisma.taskNode.findFirst({
+    where: { flowNodeId },
+    orderBy: { order: "desc" },
+  });
+  const nextOrder = lastTask ? lastTask.order + 1 : 0;
+
   return prisma.taskNode.create({
-    data: { title, description, flowNodeId },
+    data: { title, description, flowNodeId, order: nextOrder },
   });
 }
 
@@ -131,8 +145,10 @@ async function getSubtaskNodeById(id) {
   return prisma.subtaskNode.findUnique({ where: { id } });
 }
 
-async function getAllSubtasks(taskId) {
-  return prisma.subtaskNode.findMany({ where: { ...(taskId && { taskId }) } });
+async function getAllSubtasks(taskNodeId) {
+  return prisma.subtaskNode.findMany({
+    where: { ...(taskNodeId && { taskNodeId }) },
+  });
 }
 
 async function createSubtaskNode(title, taskNodeId) {
